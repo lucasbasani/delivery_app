@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../utils/validators.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
 
@@ -9,8 +11,7 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() =>
-      _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
@@ -18,9 +19,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController =
-      TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -29,9 +30,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-
     super.dispose();
   }
 
@@ -40,36 +41,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final authProvider = context.read<AuthProvider>();
-
-    final error = await authProvider.register(
-      _nameController.text.trim(),
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    final error = await context.read<AuthProvider>().register(
+          _nameController.text.trim(),
+          _emailController.text.trim(),
+          Validators.onlyDigits(_phoneController.text),
+          _passwordController.text,
+        );
 
     if (!mounted) return;
 
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(error), backgroundColor: Colors.red),
       );
-
       return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          'Conta criada com sucesso!',
-        ),
+        content: Text('Conta criada com sucesso!'),
         backgroundColor: Colors.green,
       ),
     );
 
+    // Volta para o AuthGate, que já mostra o cardápio (usuário logado).
     Navigator.pop(context);
   }
 
@@ -78,9 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Criar conta'),
-      ),
+      appBar: AppBar(title: const Text('Criar conta')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -93,9 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   size: 70,
                   color: Colors.blue,
                 ),
-
                 const SizedBox(height: 20),
-
                 const Text(
                   'Crie sua conta no PedeAi',
                   style: TextStyle(
@@ -103,51 +94,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 30),
-
                 CustomTextField(
                   controller: _nameController,
                   label: 'Nome',
                   prefixIcon: Icons.person_outline,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return 'Digite seu nome';
-                    }
-
-                    if (value.trim().length < 3) {
-                      return 'Digite um nome válido';
-                    }
-
-                    return null;
-                  },
+                  textCapitalization: TextCapitalization.words,
+                  validator: Validators.name,
                 ),
-
                 const SizedBox(height: 16),
-
                 CustomTextField(
                   controller: _emailController,
                   label: 'E-mail',
                   prefixIcon: Icons.email_outlined,
-                  keyboardType:
-                      TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty) {
-                      return 'Digite seu e-mail';
-                    }
-
-                    if (!value.contains('@')) {
-                      return 'Digite um e-mail válido';
-                    }
-
-                    return null;
-                  },
+                  keyboardType: TextInputType.emailAddress,
+                  validator: Validators.email,
                 ),
-
                 const SizedBox(height: 16),
-
+                CustomTextField(
+                  controller: _phoneController,
+                  label: 'Telefone (com DDD)',
+                  hint: 'Ex.: 42999990000',
+                  prefixIcon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(11),
+                  ],
+                  validator: Validators.phone,
+                ),
+                const SizedBox(height: 16),
                 CustomTextField(
                   controller: _passwordController,
                   label: 'Senha',
@@ -156,8 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
-                        _obscurePassword =
-                            !_obscurePassword;
+                        _obscurePassword = !_obscurePassword;
                       });
                     },
                     icon: Icon(
@@ -166,46 +141,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           : Icons.visibility_off,
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null ||
-                        value.isEmpty) {
-                      return 'Digite uma senha';
-                    }
-
-                    if (value.length < 6) {
-                      return 'A senha deve ter pelo menos 6 caracteres';
-                    }
-
-                    if (!RegExp(
-                      r'[A-Z]',
-                    ).hasMatch(value)) {
-                      return 'A senha precisa ter uma letra maiúscula';
-                    }
-
-                    if (!RegExp(
-                      r'[0-9]',
-                    ).hasMatch(value)) {
-                      return 'A senha precisa ter um número';
-                    }
-
-                    return null;
-                  },
+                  validator: Validators.password,
                 ),
-
                 const SizedBox(height: 16),
-
                 CustomTextField(
-                  controller:
-                      _confirmPasswordController,
+                  controller: _confirmPasswordController,
                   label: 'Confirmar senha',
                   prefixIcon: Icons.lock_reset_outlined,
-                  obscureText:
-                      _obscureConfirmPassword,
+                  obscureText: _obscureConfirmPassword,
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
-                        _obscureConfirmPassword =
-                            !_obscureConfirmPassword;
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
                       });
                     },
                     icon: Icon(
@@ -215,22 +162,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (value == null ||
-                        value.isEmpty) {
+                    if (value == null || value.isEmpty) {
                       return 'Confirme sua senha';
                     }
-
-                    if (value !=
-                        _passwordController.text) {
+                    if (value != _passwordController.text) {
                       return 'As senhas não coincidem';
                     }
-
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 25),
-
                 CustomButton(
                   text: 'CRIAR CONTA',
                   isLoading: authProvider.isLoading,
