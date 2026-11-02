@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../services/preferences_service.dart';
+import '../../utils/validators.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_field.dart';
-import '../client/home_screen.dart';
+import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,12 +23,28 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _rememberEmail = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmail();
+  }
+
+  /// Preenche o e-mail salvo no aparelho (SharedPreferences).
+  Future<void> _loadSavedEmail() async {
+    final email = await context.read<PreferencesService>().getSavedEmail();
+    if (!mounted || email == null) return;
+    setState(() {
+      _emailController.text = email;
+      _rememberEmail = true;
+    });
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-
     super.dispose();
   }
 
@@ -35,32 +53,26 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final authProvider = context.read<AuthProvider>();
+    final email = _emailController.text.trim();
+    final prefs = context.read<PreferencesService>();
+    final error = await context.read<AuthProvider>().login(
+          email,
+          _passwordController.text,
+        );
 
-    final success = await authProvider.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    if (error == null) {
+      // Sucesso: o AuthGate troca para a HomeScreen sozinho.
+      await prefs.setSavedEmail(_rememberEmail ? email : null);
+      return;
+    }
 
     if (!mounted) return;
-
-    if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'E-mail ou senha incorretos.',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -89,9 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   const Text(
                     'PedeAi',
                     style: TextStyle(
@@ -100,9 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Colors.blue,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   Text(
                     'Seu restaurante na palma da mão',
                     style: TextStyle(
@@ -110,29 +118,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontSize: 16,
                     ),
                   ),
-
                   const SizedBox(height: 35),
-
                   CustomTextField(
                     controller: _emailController,
                     label: 'E-mail',
                     prefixIcon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Digite seu e-mail';
-                      }
-
-                      if (!value.contains('@')) {
-                        return 'Digite um e-mail válido';
-                      }
-
-                      return null;
-                    },
+                    validator: Validators.email,
                   ),
-
                   const SizedBox(height: 16),
-
                   CustomTextField(
                     controller: _passwordController,
                     label: 'Senha',
@@ -141,8 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
-                          _obscurePassword =
-                              !_obscurePassword;
+                          _obscurePassword = !_obscurePassword;
                         });
                       },
                       icon: Icon(
@@ -155,46 +148,61 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Digite sua senha';
                       }
-
                       if (value.length < 6) {
                         return 'A senha deve ter pelo menos 6 caracteres';
                       }
-
                       return null;
                     },
                   ),
-
-                  const SizedBox(height: 22),
-
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _rememberEmail,
+                        onChanged: (value) {
+                          setState(() {
+                            _rememberEmail = value ?? false;
+                          });
+                        },
+                      ),
+                      const Text('Lembrar e-mail'),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ForgotPasswordScreen(
+                                initialEmail: _emailController.text.trim(),
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Esqueci a senha'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
                   CustomButton(
                     text: 'ENTRAR',
                     isLoading: authProvider.isLoading,
                     onPressed: _login,
                   ),
-
                   const SizedBox(height: 20),
-
                   OutlinedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              const RegisterScreen(),
+                          builder: (_) => const RegisterScreen(),
                         ),
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(
-                        double.infinity,
-                        52,
-                      ),
-                      side: const BorderSide(
-                        color: Colors.blue,
-                      ),
+                      minimumSize: const Size(double.infinity, 52),
+                      side: const BorderSide(color: Colors.blue),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: const Text(
@@ -203,38 +211,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius:
-                          BorderRadius.circular(12),
-                    ),
-                    child: const Column(
-                      children: [
-                        Text(
-                          'Conta de demonstração',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          'E-mail: demo@email.com',
-                          textAlign: TextAlign.center,
-                        ),
-                        Text(
-                          'Senha: Demo@123',
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
                     ),
                   ),
                 ],
