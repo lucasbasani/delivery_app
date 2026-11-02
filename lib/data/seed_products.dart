@@ -1,0 +1,68 @@
+/// Cardápio inicial. É gravado no Firestore (coleção `products`)
+/// automaticamente na primeira vez que o app abre e a coleção está vazia.
+const List<Map<String, dynamic>> seedProducts = [
+  {
+    'id': 1,
+    'name': 'Hambúrguer Clássico',
+    'description': 'Pão, carne, queijo, alface e tomate.',
+    'category': 'Lanches',
+    'price': 25.90,
+    'icon': 'lunch_dining',
+  },
+  {
+    'id': 2,
+    'name': 'X-Salada',
+    'description': 'Hambúrguer, queijo, alface, tomate e molho especial.',
+    'category': 'Lanches',
+    'price': 28.90,
+    'icon': 'fastfood',
+  },
+  {
+    'id': 3,
+    'name': 'Pizza Calabresa',
+    'description': 'Molho de tomate, queijo e calabresa.',
+    'category': 'Pizzas',
+    'price': 39.90,
+    'icon': 'local_pizza',
+  },
+  {
+    'id': 4,
+    'name': 'Pizza Quatro Queijos',
+    'description': 'Mussarela, provolone, parmesão e gorgonzola.',
+    'category': 'Pizzas',
+    'price': 44.90,
+    'icon': 'local_pizza',
+  },
+  {
+    'id': 5,
+    'name': 'Batata Frita',
+    'description': 'Porção de batatas crocantes.',
+    'category': 'Porções',
+    'price': 18.90,
+    'icon': 'fastfood',
+  },
+  {
+    'id': 6,
+    'name': 'Refrigerante',
+    'description': 'Refrigerante gelado 350ml.',
+    'category': 'Bebidas',
+    'price': 7.00,
+    'icon': 'local_drink',
+  },
+  {
+    'id': 7,
+    'name': 'Suco Natural',
+    'description': 'Suco natural de laranja.',
+    'category': 'Bebidas',
+    'price': 9.90,
+    'icon': 'local_drink',
+  },
+  {
+    'id': 8,
+    'name': 'Brownie',
+    'description': 'Brownie de chocolate com calda.',
+    'category': 'Sobremesas',
+    'price': 14.90,
+    'icon': 'cake',
+  },
+];
