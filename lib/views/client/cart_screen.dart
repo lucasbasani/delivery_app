@@ -3,53 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../providers/cart_provider.dart';
 import '../../widgets/cart_item_card.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   String formatPrice(double price) {
     return 'R\$ ${price.toStringAsFixed(2).replaceAll('.', ',')}';
-  }
-
-  void _finishOrder(
-    BuildContext context,
-    CartProvider cart,
-  ) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: Colors.green,
-              ),
-              SizedBox(width: 8),
-              Text('Pedido realizado!'),
-            ],
-          ),
-          content: Text(
-            'Seu pedido no valor de ${formatPrice(cart.total)} '
-            'foi registrado com sucesso.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    ).then((_) {
-      cart.clearCart();
-
-      if (context.mounted) {
-        Navigator.pop(context);
-      }
-    });
   }
 
   @override
@@ -266,16 +226,20 @@ class CartScreen extends StatelessWidget {
                           height: 54,
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              _finishOrder(
+                              // Abre o formulário de entrega e pagamento
+                              Navigator.push(
                                 context,
-                                cart,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CheckoutScreen(),
+                                ),
                               );
                             },
                             icon: const Icon(
-                              Icons.check,
+                              Icons.arrow_forward,
                             ),
                             label: const Text(
-                              'FINALIZAR PEDIDO',
+                              'CONTINUAR PARA ENTREGA',
                               style: TextStyle(
                                 fontWeight:
                                     FontWeight.bold,
