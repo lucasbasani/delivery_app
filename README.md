@@ -8,7 +8,6 @@ Aplicativo mobile de restaurante desenvolvido em Flutter para a disciplina de De
 |---|---|
 | Lucas Monteiro Ribas | Lucas Monteiro Ribas |
 | Matheus Galvão Vieira | MatheusGalvao |
-| _(nome do 3º integrante)_ | lucasbasani |
 
 ## Objetivo
 
@@ -107,13 +106,6 @@ Na primeira execução, crie uma conta pela tela **Criar conta**. O cardápio é
    dart pub global activate flutterfire_cli
    flutterfire configure
    ```
-
-## Atividades de cada integrante
-
-| Integrantes |
-|---|
-| Lucas Monteiro Ribas |
-| Matheus Galvão Vieira |
 
 ## Particularidades e limitações
 
