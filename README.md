@@ -110,8 +110,8 @@ Na primeira execução, crie uma conta pela tela **Criar conta**. O cardápio é
 
 ## Atividades de cada integrante
 
-| Integrante | Atividades |
-|---|---|
+| Integrantes |
+|---|
 | Lucas Monteiro Ribas |
 | Matheus Galvão Vieira |
 
