@@ -112,9 +112,8 @@ Na primeira execução, crie uma conta pela tela **Criar conta**. O cardápio é
 
 | Integrante | Atividades |
 |---|---|
-| Lucas Monteiro Ribas | Parte 1: models, AuthProvider, CartProvider, tela da sacola, tela de login e `main.dart`. Parte 2: configuração do Firebase, validações e formatações (`utils`), autenticação com Firebase Auth (AuthService, AuthProvider e AuthGate), SharedPreferences, telas de login, cadastro e recuperação de senha, pedidos no Firestore (modelo, serviço e provider), seletor de pagamento, checkout, confirmação do pedido e `main.dart`. |
-| Matheus Galvão Vieira | Parte 1: configuração do Provider, AuthService em memória, widgets reutilizáveis, ProductCard e CartItemCard, cadastro, HomeScreen e README. Parte 2: correção da pasta de assets, melhorias no CustomTextField, cardápio no Firestore (modelo, seed, serviço e provider), endereços salvos (modelo, serviço, provider, campos reutilizáveis e CRUD), tela Minha conta, Meus pedidos, nova HomeScreen, regras do Firestore e README. |
-| _(3º integrante)_ | Parte 1: criação do projeto Flutter. Parte 2: _(preencher)_ |
+| Lucas Monteiro Ribas |
+| Matheus Galvão Vieira |
 
 ## Particularidades e limitações
 
